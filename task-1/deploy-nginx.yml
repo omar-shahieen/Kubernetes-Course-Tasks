@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      shareProcessNamespace: true
+
+      initContainers:
+        - name: init-done
+          image: alpine@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+          command: ["sh", "-c", "echo done ;exit 0 "]
+
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "hello in MLOPS MENA COMMUNITY : $(date '+%Y-%m-%d %H:%M:%S')" \
+                > /usr/share/nginx/html/index.html
+
+              exec nginx -g 'daemon off;'
+
+        - name: time-updater
+          image: alpine@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while ! pidof nginx >/dev/null 2>&1; do
+                sleep 1
+              done
+
+              NGINX_PID=$(pidof nginx | awk '{print $1}')
+
+              echo "Found Nginx PID: $NGINX_PID"
+
+              while true; do
+                echo "hello in MLOPS MENA COMMUNITY : $(date '+%Y-%m-%d %H:%M:%S')" \
+                  > /proc/$NGINX_PID/root/usr/share/nginx/html/index.html
+
+                sleep 5
+              done

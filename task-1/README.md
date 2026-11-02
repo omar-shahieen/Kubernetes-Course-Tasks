@@ -10,3 +10,7 @@
 
 ![alt text](/images/init.png)
 ![alt text](/images/rollout.png)
+
+## time update
+
+![alt text](/images/time.png)

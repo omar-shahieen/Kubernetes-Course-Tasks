@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: webapp-stack
+spec:
+  resources:
+    requests:
+      storage: 2Gi
+  volumeMode: Filesystem
+  storageClassName: manual
+  volumeName: mysql-pv
+  accessModes:
+    - ReadWriteOnce
